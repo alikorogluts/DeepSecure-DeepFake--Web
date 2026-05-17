@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Scan } from 'lucide-react';
+import Image from 'next/image';
 
 /** Single responsibility: site navigation bar */
 export default function Navbar() {
@@ -10,15 +10,32 @@ export default function Navbar() {
       <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
 
         {/* Brand mark */}
-        <Link href="/" className="flex items-center gap-2.5 group" style={{ textDecoration: 'none' }}>
-          <div
-            className="w-8 h-8 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-105"
-            style={{ background: 'var(--green-soft)', border: '1px solid var(--border-accent)' }}
-          >
-            <Scan className="w-4 h-4" style={{ color: 'var(--green)' }} />
+        <Link
+          href="/"
+          className="flex items-center gap-3 group"
+          style={{ textDecoration: 'none' }}
+        >
+          <div className="transition-transform duration-200 group-hover:scale-105">
+            <Image
+              src="/truva-logo.png"
+              alt="TruvaLens Logo"
+              width={42}
+              height={42}
+              priority
+            />
           </div>
-          <span className="text-sm font-bold" style={{ color: 'var(--t1)', fontFamily: 'var(--sans)' }}>
-            Deep<span style={{ color: 'var(--green)' }}>Secure</span>
+
+          <span
+            className="text-sm font-bold"
+            style={{
+              color: 'var(--t1)',
+              fontFamily: 'var(--sans)',
+            }}
+          >
+            Truva
+            <span style={{ color: 'var(--green)' }}>
+              Lens
+            </span>
           </span>
         </Link>
 
@@ -34,9 +51,16 @@ export default function Navbar() {
           }}
         >
           <span className="relative flex h-1.5 w-1.5">
-            <span className="absolute inset-0 rounded-full animate-ping opacity-50" style={{ background: 'var(--green)' }} />
-            <span className="relative rounded-full h-1.5 w-1.5" style={{ background: 'var(--green)' }} />
+            <span
+              className="absolute inset-0 rounded-full animate-ping opacity-50"
+              style={{ background: 'var(--green)' }}
+            />
+            <span
+              className="relative rounded-full h-1.5 w-1.5"
+              style={{ background: 'var(--green)' }}
+            />
           </span>
+
           Sistem Aktif
         </div>
       </div>
