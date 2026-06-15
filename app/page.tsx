@@ -10,7 +10,7 @@ import { useAnalysis } from '@/hooks/useAnalysis';
 
 /** Home page — composes components, owns session state only */
 export default function Home() {
-  const { activeId, setActiveId, status, setStatus } = useAnalysis();
+  const { activeId, setActiveId, status, setStatus, retrying, retryMessage } = useAnalysis();
 
   return (
     <>
@@ -24,7 +24,7 @@ export default function Home() {
           <ImageUpload
             onUploadSuccess={id => { setActiveId(id); setStatus('Pending'); }}
           />
-          {activeId && <StatusPanel status={status} id={activeId} />}
+          {activeId && <StatusPanel status={status} id={activeId} retrying={retrying} retryMessage={retryMessage} />}
         </section>
 
         <div className="w-full max-w-5xl my-12" style={{ borderTop: '1px solid var(--border-dim)' }} />

@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, ShieldAlert, CheckCircle2, Scan } from 'lucide-react';
+import { ArrowLeft, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 
 /** Single responsibility: sticky top bar for the analysis detail page */
 export function DetailHeader({ isDeepfake }: { isDeepfake: boolean }) {
@@ -26,10 +27,10 @@ export function DetailHeader({ isDeepfake }: { isDeepfake: boolean }) {
               className="w-7 h-7 rounded-lg flex items-center justify-center transition-transform duration-200 group-hover:scale-105"
               style={{ background: 'var(--green-soft)', border: '1px solid var(--border-accent)' }}
             >
-              <Scan className="w-3.5 h-3.5" style={{ color: 'var(--green)' }} />
+              <BrandLogo size={22} />
             </div>
             <span className="text-sm font-bold hidden sm:block" style={{ color: 'var(--t1)' }}>
-              Deep<span style={{ color: 'var(--green)' }}>Secure</span>
+              Truva<span style={{ color: 'var(--green)' }}>Lens</span>
             </span>
           </Link>
 

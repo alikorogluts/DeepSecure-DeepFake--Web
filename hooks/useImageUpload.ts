@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { AnalysisService } from '@/services/analysis.service';
+import { getApiErrorMessage } from '@/lib/error-message';
 
 export function useImageUpload(onUploadSuccess?: (id: string) => void) {
   const [file, setFile] = useState<File | null>(null);
@@ -51,8 +52,8 @@ export function useImageUpload(onUploadSuccess?: (id: string) => void) {
 
       if (onUploadSuccess) onUploadSuccess(newId);
       toast.success('Resim başarıyla yapay zekaya iletildi!');
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || 'Yükleme sırasında bir hata oluştu.');
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, 'Yükleme sırasında bir hata oluştu. Lütfen tekrar deneyin.'));
       removeFile(); // Hata olursa formu temizle
     } finally {
       setIsUploading(false);

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 import { useAnalysisDetail } from '@/hooks/useAnalysisDetail';
 import { Lightbox } from '@/components/ui/Lightbox';
@@ -12,6 +12,7 @@ import { ConfidenceCard } from '@/components/analysis-detail/ConfidenceCard';
 import { ExifCard } from '@/components/analysis-detail/ExifCard';
 import { ImageLayersGrid } from '@/components/analysis-detail/ImageLayersGrid';
 import BackgroundEffects from '@/components/home/BackgroundEffects';
+import { ApiRetrySkeleton } from '@/components/ui/ApiRetrySkeleton';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface LightboxState {
@@ -29,10 +30,21 @@ export default function AnalysisDetailPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const { data, loading, error } = useAnalysisDetail(id);
+  const { data, loading, error, retrying, retryMessage, retryNow } = useAnalysisDetail(id);
   const [lightbox, setLightbox] = useState<LightboxState | null>(null);
 
   // ── Loading ──
+  if (retrying) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center p-6">
+        <BackgroundEffects />
+        <div className="max-w-sm w-full">
+          <ApiRetrySkeleton message={retryMessage} onRetry={retryNow} />
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-dvh flex flex-col items-center justify-center gap-4">
@@ -119,6 +131,7 @@ export default function AnalysisDetailPage() {
             <ConfidenceCard
               cnnConfidence={result.cnnConfidence}
               isDeepfake={result.isDeepfake}
+              deepfakeProbability={result.deepfakeProbability}
               elaScore={result.elaScore}
               fftAnomalyScore={result.fftAnomalyScore}
             />

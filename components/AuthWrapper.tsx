@@ -2,10 +2,21 @@
 
 import { ShieldAlert } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { ApiRetrySkeleton } from '@/components/ui/ApiRetrySkeleton';
 
 /** Single responsibility: gate the app behind a ready auth session */
 export default function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const { isReady, error } = useAuth();
+  const { isReady, error, retrying, retryMessage, retryNow } = useAuth();
+
+  if (retrying) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center p-6">
+        <div className="max-w-sm w-full">
+          <ApiRetrySkeleton message={retryMessage} onRetry={retryNow} />
+        </div>
+      </div>
+    );
+  }
 
   if (error) {
     return (

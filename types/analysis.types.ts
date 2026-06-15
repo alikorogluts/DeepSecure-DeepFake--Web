@@ -12,6 +12,7 @@ export interface ExifAnalysisDto {
 export interface AnalysisDetailDto {
   isDeepfake: boolean;
   cnnConfidence: number;
+  deepfakeProbability?: number;
   elaScore?: number;
   fftAnomalyScore?: number;
   exifAnalysis: ExifAnalysisDto;
@@ -39,6 +40,7 @@ export interface HistoryItemDto {
   analysisId: string;
   isDeepfake: boolean;
   cnnConfidence: number;
+  deepfakeProbability?: number;
   thumbnailPath?: string;
   createdAt: string;
 }
@@ -49,6 +51,9 @@ export interface PaginatedHistoryResponseDto {
   totalCount: number;
   page: number;
   pageSize: number;
+  totalPages?: number;
+  hasNextPage?: boolean;
+  nextCursor?: string;
   data: HistoryItemDto[];
 }
 

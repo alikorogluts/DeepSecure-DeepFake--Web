@@ -4,7 +4,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useAnalysisHistory } from '@/hooks/useAnalysisHistory';
 import { HistoryItemDto } from '@/types/analysis.types';
-import { AlertCircle, ArrowUpRight, Clock, ScanSearch } from 'lucide-react';
+import { AlertCircle, ArrowUpRight, Clock, Loader2, ScanSearch } from 'lucide-react';
+import {
+  getDisplayConfidenceLabel,
+  getDisplayConfidenceValue,
+  getDisplayResultLabel,
+} from '@/lib/analysis-display';
+import { ApiRetrySkeleton } from '@/components/ui/ApiRetrySkeleton';
 
 /** Single responsibility: render list of past analyses */
 
@@ -41,6 +47,10 @@ function StatusBadge({ status }: { status: string }) {
 
 // ── Analysis card ─────────────────────────────────────────────────────────────
 function AnalysisCard({ item, index }: { item: HistoryItemDto; index: number }) {
+  const resultLabel = getDisplayResultLabel(item);
+  const confidenceLabel = getDisplayConfidenceLabel(item);
+  const confidenceValue = getDisplayConfidenceValue(item);
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 14 }}
@@ -123,20 +133,20 @@ function AnalysisCard({ item, index }: { item: HistoryItemDto; index: number }) 
                 className="text-sm font-extrabold tracking-tight"
                 style={{ color: item.isDeepfake ? 'var(--red)' : 'var(--green)' }}
               >
-                {item.isDeepfake ? 'DEEPFAKE' : 'GERÇEK'}
+                {resultLabel}
               </span>
               <div className="text-right">
                 <p
                   className="text-[10px] uppercase tracking-widest mb-0.5"
                   style={{ color: 'var(--t2)' }}
                 >
-                  Güven
+                  {confidenceLabel}
                 </p>
                 <p
                   className="text-sm font-bold"
                   style={{ color: 'var(--t1)', fontFamily: 'var(--mono)' }}
                 >
-                  %{Math.round(item.cnnConfidence * 100)}
+                  %{confidenceValue}
                 </p>
               </div>
             </div>
@@ -192,9 +202,58 @@ function SkeletonGrid() {
   );
 }
 
+function LoadMoreControl({
+  hasMore,
+  isLoadingMore,
+  error,
+  onLoadMore,
+}: {
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  error: string | null;
+  onLoadMore: () => void;
+}) {
+  if (!hasMore && !error) return null;
+
+  return (
+    <div className="mt-7 flex flex-col items-center gap-3">
+      {error && (
+        <p className="text-xs text-center" style={{ color: 'var(--red)' }}>
+          {error}
+        </p>
+      )}
+      <button
+        onClick={onLoadMore}
+        disabled={isLoadingMore}
+        className="w-full sm:w-auto min-h-11 px-5 py-2.5 rounded-[var(--r2)] text-sm font-semibold flex items-center justify-center gap-2 transition-opacity duration-150 disabled:cursor-not-allowed"
+        style={{
+          background: 'var(--bg-raised)',
+          border: '1px solid var(--border-base)',
+          color: 'var(--t1)',
+          opacity: isLoadingMore ? 0.75 : 1,
+        }}
+      >
+        {isLoadingMore && <Loader2 className="w-4 h-4 spin" style={{ color: 'var(--green)' }} />}
+        {isLoadingMore ? 'Yükleniyor…' : 'Daha Fazla Göster'}
+      </button>
+    </div>
+  );
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function AnalysisHistory() {
-  const { history, loading, error } = useAnalysisHistory();
+  const {
+    history,
+    loading,
+    error,
+    retrying,
+    retryMessage,
+    refetch,
+    hasMore,
+    isLoadingMore,
+    loadMoreError,
+    loadMore,
+  } = useAnalysisHistory();
 
   return (
     <section className="w-full max-w-5xl mx-auto">
@@ -209,19 +268,34 @@ export default function AnalysisHistory() {
         <h2 className="text-lg font-bold" style={{ color: 'var(--t1)' }}>Geçmiş Analizler</h2>
       </div>
 
-      {error && <ErrorBanner message={error} />}
+      {retrying && (
+        <ApiRetrySkeleton
+          message={retryMessage}
+          onRetry={refetch}
+        />
+      )}
 
-      {loading
+      {!retrying && error && <ErrorBanner message={error} />}
+
+      {loading && !retrying && history.length === 0
         ? <SkeletonGrid />
         : history?.length > 0
           ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 list-stagger">
-              {history.map((item, i) => (
-                <AnalysisCard key={item.analysisId} item={item} index={i} />
-              ))}
-            </div>
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 list-stagger">
+                {history.map((item, i) => (
+                  <AnalysisCard key={item.analysisId} item={item} index={i} />
+                ))}
+              </div>
+              <LoadMoreControl
+                hasMore={hasMore}
+                isLoadingMore={isLoadingMore}
+                error={loadMoreError}
+                onLoadMore={loadMore}
+              />
+            </>
           )
-          : !error && <EmptyState />
+          : !error && !retrying && <EmptyState />
       }
     </section>
   );

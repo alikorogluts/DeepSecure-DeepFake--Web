@@ -23,7 +23,7 @@ const ZONE_LABELS: Record<Zone, string> = { low: '🟢 Düşük', mid: '🟡 Ort
 
 export function ScoreBar({ label, value, maxValue = 1, fillColor, description, lowNote, highNote }: ScoreBarProps) {
   const [anim, setAnim] = useState(0);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const pct = Math.min(100, (value / maxValue) * 100);
   const zone: Zone = pct < 30 ? 'low' : pct < 65 ? 'mid' : 'high';
   const zc = ZONE_COLORS[zone];

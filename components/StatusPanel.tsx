@@ -9,6 +9,8 @@ import { AnalysisStatus } from '@/types/analysis.types';
 interface StatusPanelProps {
   status: AnalysisStatus | null;
   id: string;
+  retrying?: boolean;
+  retryMessage?: string;
 }
 
 interface StatusConfig {
@@ -55,55 +57,79 @@ const CONFIG: Record<AnalysisStatus, StatusConfig> = {
   },
 };
 
-export function StatusPanel({ status, id }: StatusPanelProps) {
-  const cfg = CONFIG[status ?? 'Pending'];
+export function StatusPanel({ status, id, retrying = false, retryMessage }: StatusPanelProps) {
+  const cfg = retrying
+    ? {
+      label: 'Analiz servisine bağlanılıyor…',
+      color: 'var(--green)',
+      bg: 'var(--green-soft)',
+      border: 'var(--border-accent)',
+      dot: true,
+      icon: <Loader2 className="w-4 h-4 shrink-0 spin" style={{ color: 'var(--green)' }} />,
+    }
+    : CONFIG[status ?? 'Pending'];
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.div
-        key={status}
-        initial={{ opacity: 0, y: -6, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 6, scale: 0.98 }}
-        transition={{ duration: 0.22, ease: 'easeOut' }}
-        className="w-full max-w-lg flex items-center justify-between gap-3 px-4 py-2.5 mt-3"
-        style={{
-          background: cfg.bg,
-          border: `1px solid ${cfg.border}`,
-          borderRadius: 'var(--r3)',
-        }}
-      >
-        {/* Left: icon + label */}
-        <div className="flex items-center gap-2.5">
-          {cfg.icon}
-          <span className="text-sm font-medium" style={{ color: cfg.color }}>{cfg.label}</span>
-
-          {/* Animated dot for in-progress states */}
-          {cfg.dot && (
-            <span className="flex gap-0.5 ml-1">
-              {[0, 1, 2].map(i => (
-                <span
-                  key={i}
-                  className="w-1 h-1 rounded-full"
-                  style={{
-                    background: cfg.color,
-                    animation: `breathe 1.2s ease-in-out infinite`,
-                    animationDelay: `${i * 0.2}s`,
-                  }}
-                />
-              ))}
-            </span>
-          )}
-        </div>
-
-        {/* Right: ID */}
-        <span
-          className="text-[10px] shrink-0"
-          style={{ color: 'var(--t3)', fontFamily: 'var(--mono)' }}
+    <>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={retrying ? 'retrying' : status}
+          initial={{ opacity: 0, y: -6, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 6, scale: 0.98 }}
+          transition={{ duration: 0.22, ease: 'easeOut' }}
+          className="w-full max-w-lg flex items-center justify-between gap-3 px-4 py-2.5 mt-3"
+          style={{
+            background: cfg.bg,
+            border: `1px solid ${cfg.border}`,
+            borderRadius: 'var(--r3)',
+          }}
         >
-          #{id.substring(0, 8)}
-        </span>
-      </motion.div>
-    </AnimatePresence>
+          {/* Left: icon + label */}
+          <div className="flex items-center gap-2.5">
+            {cfg.icon}
+            <span className="text-sm font-medium" style={{ color: cfg.color }}>{cfg.label}</span>
+
+            {/* Animated dot for in-progress states */}
+            {cfg.dot && (
+              <span className="flex gap-0.5 ml-1">
+                {[0, 1, 2].map(i => (
+                  <span
+                    key={i}
+                    className="w-1 h-1 rounded-full"
+                    style={{
+                      background: cfg.color,
+                      animation: `breathe 1.2s ease-in-out infinite`,
+                      animationDelay: `${i * 0.2}s`,
+                    }}
+                  />
+                ))}
+              </span>
+            )}
+          </div>
+
+          {/* Right: ID */}
+          <span
+            className="text-[10px] shrink-0"
+            style={{ color: 'var(--t3)', fontFamily: 'var(--mono)' }}
+          >
+            #{id.substring(0, 8)}
+          </span>
+        </motion.div>
+      </AnimatePresence>
+
+      {retrying && retryMessage && (
+        <motion.p
+          key="retry-message"
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 4 }}
+          className="w-full max-w-lg mt-2 text-xs text-center"
+          style={{ color: 'var(--t2)' }}
+        >
+          {retryMessage}
+        </motion.p>
+      )}
+    </>
   );
 }

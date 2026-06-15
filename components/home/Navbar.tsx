@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 
 /** Single responsibility: site navigation bar */
 export default function Navbar() {
@@ -16,13 +16,7 @@ export default function Navbar() {
           style={{ textDecoration: 'none' }}
         >
           <div className="transition-transform duration-200 group-hover:scale-105">
-            <Image
-              src="/truva-logo.png"
-              alt="TruvaLens Logo"
-              width={42}
-              height={42}
-              priority
-            />
+            <BrandLogo size={42} priority />
           </div>
 
           <span
